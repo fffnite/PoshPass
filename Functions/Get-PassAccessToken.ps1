@@ -18,7 +18,9 @@ function Get-PassAccessToken {
         [string]
         $Server
     )
-
+    
+    Add-type -AssemblyName System.Web
+    
     $ClientIdEncoded = [System.Web.HttpUtility]::UrlEncode($ClientID)
     $ClientSecretEncoded = [System.Web.HttpUtility]::UrlEncode($ClientSecret)
 
