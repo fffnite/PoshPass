@@ -4,17 +4,17 @@ function Get-PassData {
 
     Param(
         # Sets which server to connect to.
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [string]
         $Server,
 
         # Insert Access Token for data query.
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [string]
         $AccessToken,
 
         # Set which PASS module to connect to.
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [string]
         $Module,
 
@@ -53,39 +53,44 @@ function Get-PassData {
         [string]
         $Count,
 
-        # Parameter help description
+        # Iterates through every next link available
         [Parameter()]
-        [string]
-        $NextLink
+        [switch]
+        $All
     )
 
-    if ($Expand) {$Expand = '&$expand=' + $Expand} 
-    if ($Filter) {$Filter = '&$filter=' + $Filter} 
-    if ($Select) {$Select = '&$select=' + $Select}
-    if ($OrderBy) {$OrderBy = '&$orderby=' + $OrderBy}
-    if ($Top) {$Top = '&$top=' + $Top}
-    if ($skip) {$Skip = '&$skip=' + $Skip}
-    if ($Count) {$Count = '&$count=' + $Count}
+    begin { $Data = new-object system.collections.generic.list[System.Management.Automation.PSCustomObject] }
 
-    $PassDataParams = @{
-        Uri     = "https://$Server/Wcbs.API/api$Module" + "?" + "$Expand" + "$Filter" + "$Select" + "$OrderBy" + "$Top" + "$Skip" + "$Count"
-        method  = 'Get'
-        Headers = @{
-            "authorization" = "Bearer $AccessToken"
-            "accept"        = "application/json"
-        }
-    }
+    process {
+        if ($Expand) {$Expand = '&$expand=' + $Expand} 
+        if ($Filter) {$Filter = '&$filter=' + $Filter} 
+        if ($Select) {$Select = '&$select=' + $Select}
+        if ($OrderBy) {$OrderBy = '&$orderby=' + $OrderBy}
+        if ($Top) {$Top = '&$top=' + $Top}
+        if ($skip) {$Skip = '&$skip=' + $Skip}
+        if ($Count) {$Count = '&$count=' + $Count}
+        $Uri = "https://$Server/Wcbs.API/api$Module" + "?" + "$Expand" + "$Filter" + "$Select" + "$OrderBy" + "$Top" + "$Skip" + "$Count"
 
-    if ($NextLink) {
-        $PassDataParams = @{
-            Uri     = "$NextLink"
+        $get = @{
             method  = 'Get'
             Headers = @{
                 "authorization" = "Bearer $AccessToken"
                 "accept"        = "application/json"
             }
         }
-    }
+        $results = Invoke-RestMethod @get -uri $uri
+        $Data.add($results)
 
-    Invoke-RestMethod @PassDataParams -Verbose
+        if ($All) {
+            while ($results.'@odata.nextlink') {
+                $Results = Invoke-RestMethod @get -uri $results.'@odata.nextlink'
+                $Data.add($results)
+            }
+        }
+    }
+    
+    end {
+        $Data
+    }
 }
+
