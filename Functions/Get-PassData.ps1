@@ -59,7 +59,10 @@ function Get-PassData {
         $All
     )
 
-    begin { $Data = new-object system.collections.generic.list[System.Management.Automation.PSCustomObject] }
+    begin {
+        # Create a dynamic list to store output objects
+        $Data = [system.collections.generic.list[Object]]::new() 
+    }
 
     process {
         if ($Expand) {$Expand = '&$expand=' + $Expand} 
