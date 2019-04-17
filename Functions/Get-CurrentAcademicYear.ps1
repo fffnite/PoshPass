@@ -25,10 +25,10 @@ function Get-CurrentAcademicYear {
             AccessToken = "$AccessToken"
         }
         # Get Current Academic year
-        $CAY = (Get-PassData @Get -Module "/schools($SchoolId)/CurrentAcademicYear").value.academicYearCode
+        $CAY = (Get-Data @Get -Module "/schools($SchoolId)/CurrentAcademicYear").value.academicYearCode
         # Get calendar info based on the Current Academic Year
         $GetCal = @{
-            Module = "/schools($SchoolID)/School/Calendars"
+            Module = "/schools($SchoolID)/SchoolCalendars"
             Filter = "AcademicYear eq $CAY"
         }
         $YD = (Get-PassData @Get @GetCal).value
