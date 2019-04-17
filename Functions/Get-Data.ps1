@@ -1,4 +1,4 @@
-function Get-PassData {
+function Get-Data {
 
     [CmdletBinding(PositionalBinding = $false)]
 
