@@ -1,4 +1,4 @@
-function Get-PassAccessToken {
+function Get-AccessToken {
 
     [CmdletBinding(PositionalBinding = $false)]
 
